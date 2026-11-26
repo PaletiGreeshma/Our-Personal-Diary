@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Little Diary — Private Circle Scrapbook</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Editorial Serif & Clean Sans Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Lora"', 'serif'],
+          },
+          colors: {
+            canvas: '#FAF8F5',
+            card: '#FFFFFF',
+            ink: '#24201D',
+            subtle: '#7D746D',
+            hairline: '#EAE3DA',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --accent: #D96B4F;
+      --accent-soft: #FDF0EC;
+      --accent-ring: rgba(217, 107, 79, 0.22);
+    }
+
+    body {
+      background-color: #FAF8F5;
+      color: #24201D;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Dynamic Accent Utilities */
+    .bg-accent { background-color: var(--accent); }
+    .bg-accent-soft { background-color: var(--accent-soft); }
+    .text-accent { color: var(--accent); }
+    .border-accent { border-color: var(--accent); }
+
+    /* Clean Polaroid Photo Frame */
+    .polaroid-frame {
+      background: #FFFFFF;
+      padding: 10px 10px 26px 10px;
+      border-radius: 14px;
+      border: 1px solid #EAE3DA;
+      box-shadow: 0 4px 16px rgba(36, 32, 29, 0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .polaroid-frame:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(36, 32, 29, 0.08);
+    }
+
+    /* Audio Waveform Animation */
+    @keyframes wavePulse {
+      0%, 100% { transform: scaleY(0.35); }
+      50% { transform: scaleY(1); }
+    }
+    .wave-active span {
+      animation: wavePulse 0.6s infinite ease-in-out;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-amber-200/60">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:w-80 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
+    <div class="bg-[#24201D] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-medium">
+      <span id="toast-icon">✨</span>
+      <span id="toast-msg">Saved</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. PRIVATE GROUP LOGIN GATE (Code + Password + Friend Selection)      -->
+  <!-- ===================================================================== -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-md bg-white rounded-3xl border border-hairline shadow-xl shadow-stone-200/50 p-6 sm:p-9 space-y-6">
+      
+      <!-- Brand Header -->
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-[#FDF0EC] text-[#D96B4F] border border-[#F5D5CC] mx-auto flex items-center justify-center text-xl shadow-xs">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h1 class="font-serif text-4xl font-semibold tracking-tight text-ink">Our Little Diary</h1>
+        <p class="text-xs sm:text-sm text-subtle">A private space reserved strictly for our circle.</p>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="handleGroupLogin(event)" class="space-y-4">
+        
+        <!-- Who is signing in? -->
+        <div>
+          <label class="block text-xs font-semibold text-subtle mb-2">Who's opening the diary?</label>
+          <div id="login-friend-selector" class="grid grid-cols-3 gap-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Group Invite Code -->
+        <div>
+          <label class="block text-xs font-semibold text-subtle mb-1.5">Group Invite Code</label>
+          <div class="relative">
+            <i class="fa-solid fa-key text-subtle/60 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="login-code" required autocomplete="off" placeholder="Enter group code"
+              class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-canvas border border-hairline focus:border-ink focus:bg-white outline-none text-sm font-semibold uppercase tracking-wider transition" />
+          </div>
+        </div>
+
+        <!-- Group Shared Password -->
+        <div>
+          <label class="block text-xs font-semibold text-subtle mb-1.5">Shared Group Password</label>
+          <div class="relative">
+            <i class="fa-solid fa-shield-halved text-subtle/60 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="password" id="login-password" required placeholder="••••••••"
+              class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-canvas border border-hairline focus:border-ink focus:bg-white outline-none text-sm transition" />
+            <button type="button" onclick="toggleLoginPasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-ink text-xs">
+              <i class="fa-regular fa-eye" id="login-eye-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline Error Message -->
+        <p id="login-error" class="hidden text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-center">
+          Invalid group code or password. Please check and try again.
+        </p>
+
+        <button type="submit"
+          class="w-full py-3 rounded-xl bg-ink hover:bg-stone-800 text-white text-sm font-semibold shadow-sm active:scale-[0.99] transition flex items-center justify-center gap-2">
+          <span>Unlock Our Diary</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </form>
+
+      <!-- Demo Credentials Hint -->
+      <div class="pt-4 border-t border-hairline flex items-center justify-between gap-2 text-[11px] text-subtle">
+        <div>
+          Code: <span class="font-bold text-ink" id="demo-code-hint">TRIO-2026</span>
+          &bull; Pass: <span class="font-bold text-ink" id="demo-pass-hint">sunflower</span>
+        </div>
+        <button type="button" onclick="fillDemoCredentials()"
+          class="px-2.5 py-1 rounded-full bg-canvas hover:bg-stone-200/70 border border-hairline font-semibold text-ink transition">
+          Auto-fill
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN AUTHENTICATED APP SHELL                                       -->
+  <!-- ===================================================================== -->
+  <div id="app-shell" class="hidden pb-24 md:pb-16">
+
+    <!-- Streamlined Sticky Header -->
+    <header class="sticky top-0 z-30 bg-canvas/95 backdrop-blur-md border-b border-hairline">
+      <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+        
+        <!-- Brand -->
+        <button onclick="switchTab('diary')" class="flex items-center gap-2.5 text-left group shrink-0">
+          <span class="w-8 h-8 rounded-xl bg-accent text-white flex items-center justify-center text-sm shadow-xs transition-colors">
+            <i class="fa-solid fa-book-open"></i>
+          </span>
+          <span class="font-serif text-xl sm:text-2xl font-semibold text-ink tracking-tight">Our Little Diary</span>
+        </button>
+
+        <!-- Right Controls: Active Friend Switcher + Settings Gear + Lock -->
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div id="header-friend-switcher" class="flex items-center bg-white border border-hairline rounded-full p-0.5 shadow-2xs overflow-x-auto no-scrollbar max-w-[180px] sm:max-w-xs">
+            <!-- Populated by JS -->
+          </div>
+
+          <button onclick="openSettingsModal()" title="Settings, Circle & Birthdays"
+            class="w-8 h-8 rounded-full bg-white hover:bg-stone-100 border border-hairline text-subtle hover:text-ink flex items-center justify-center text-xs shrink-0 transition">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+
+          <button onclick="lockDiary()" title="Lock & Sign Out"
+            class="w-8 h-8 rounded-full bg-white hover:bg-stone-100 border border-hairline text-subtle hover:text-ink flex items-center justify-center text-xs shrink-0 transition">
+            <i class="fa-solid fa-lock"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Clean Navigation Sub-bar + Next Birthday Pill + New Memory CTA -->
+      <div class="max-w-3xl mx-auto px-4 border-t border-hairline/70 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        <nav class="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm shrink-0">
+          <button data-tab="diary" onclick="switchTab('diary')" class="main-tab py-2.5 border-b-2 font-semibold transition">Diary</button>
+          <button data-tab="chat" onclick="switchTab('chat')" class="main-tab py-2.5 border-b-2 font-semibold transition flex items-center gap-1.5">
+            <span>Chat</span>
+            <span id="chat-unread-badge" class="px-1.5 py-0.2 rounded-full bg-accent text-white text-[10px] font-bold">2</span>
+          </button>
+          <button data-tab="calendar" onclick="switchTab('calendar')" class="main-tab py-2.5 border-b-2 font-semibold transition">Calendar</button>
+          <button data-tab="gallery" onclick="switchTab('gallery')" class="main-tab py-2.5 border-b-2 font-semibold transition">Gallery</button>
+          <button data-tab="shelf" onclick="switchTab('shelf')" class="main-tab py-2.5 border-b-2 font-semibold transition">Shelf</button>
+        </nav>
+
+        <div class="hidden sm:flex items-center gap-2 py-1.5 shrink-0">
+          <button onclick="openSettingsModal()" id="next-bday-pill"
+            class="px-2.5 py-1 rounded-full bg-white border border-hairline hover:border-ink text-[11px] font-semibold text-subtle hover:text-ink transition">
+            🎂 Next B-Day
+          </button>
+          <button onclick="openComposerModal()"
+            class="px-3 py-1 rounded-full bg-accent text-white text-xs font-semibold shadow-2xs hover:opacity-95 transition flex items-center gap-1">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>New Memory</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Single-Column Airy Content Container -->
+    <main class="max-w-3xl mx-auto px-4 pt-5 sm:pt-7">
+
+      <!-- ==================== TAB 1: DIARY ==================== -->
+      <section id="view-diary" class="app-view space-y-6">
+        
+        <!-- Top Action Row: Date + Throwback + "+ New Memory" Button -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-subtle" id="today-date-display">Today</p>
+            <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-ink">Shared Pages</h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="openRandomThrowback()"
+              class="px-3.5 py-2 rounded-full bg-white hover:bg-stone-50 border border-hairline text-xs font-semibold text-ink shadow-2xs flex items-center gap-1.5 transition active:scale-95">
+              <span>🎞️</span>
+              <span>Remember this day?</span>
+            </button>
+
+            <button onclick="openComposerModal()"
+              class="px-4 py-2 rounded-full bg-accent text-white text-xs sm:text-sm font-semibold shadow-sm hover:opacity-95 active:scale-95 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>New Memory</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subtle Author Filter Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="diary-filter-bar">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Clean Editorial Feed -->
+        <div id="diary-feed-list" class="space-y-6">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: DEDICATED GROUP CHAT ==================== -->
+      <section id="view-chat" class="app-view hidden">
+        <div class="bg-white rounded-3xl border border-hairline shadow-2xs flex flex-col h-[calc(100vh-13.5rem)] sm:h-[calc(100vh-11.5rem)] min-h-[480px] overflow-hidden">
+          
+          <!-- Chat Room Header with Member Status Pills -->
+          <div class="px-5 py-3.5 border-b border-hairline bg-canvas/60 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="font-serif text-xl font-semibold text-ink">Circle Hangout Room</h2>
+              <p class="text-[11px] text-subtle">Private group chat &bull; Tap <i class="fa-solid fa-thumbtack text-[10px]"></i> to pin a message into our Diary</p>
+            </div>
+            <div id="chat-members-status" class="flex items-center gap-1.5 flex-wrap">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Scrollable Chat Message Stream -->
+          <div id="chat-feed" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#FCFBF9]">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Staged Chat Photo / Voice Preview Bar -->
+          <div id="chat-staged-bar" class="hidden px-4 py-2 bg-canvas border-t border-hairline flex items-center justify-between gap-2 text-xs">
+            <div id="chat-staged-content" class="flex items-center gap-2"></div>
+            <button type="button" onclick="clearChatStaged()" class="text-subtle hover:text-red-600 font-semibold">Remove</button>
+          </div>
+
+          <!-- Rich Chat Composer -->
+          <form onsubmit="sendChatMessage(event)" class="p-3 sm:p-4 bg-white border-t border-hairline flex items-center gap-2">
+            <label title="Send a photo" class="w-9 h-9 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-subtle hover:text-ink flex items-center justify-center shrink-0 cursor-pointer transition">
+              <i class="fa-regular fa-image text-xs"></i>
+              <input type="file" accept="image/*" class="hidden" onchange="handleChatPhotoUpload(event)" />
+            </label>
+
+            <button type="button" onclick="stageChatSamplePhoto()" title="Attach sample photo"
+              class="w-9 h-9 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-subtle hover:text-ink flex items-center justify-center shrink-0 transition text-xs">
+              📸
+            </button>
+
+            <button type="button" id="chat-voice-btn" onclick="toggleChatVoiceRecording()" title="Record voice note"
+              class="h-9 px-3 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-accent flex items-center gap-1.5 shrink-0 transition text-xs font-semibold">
+              <i class="fa-solid fa-microphone"></i>
+              <span id="chat-voice-timer" class="hidden">0:00</span>
+            </button>
+
+            <input type="text" id="chat-message-input" placeholder="Message the circle..."
+              class="flex-1 bg-canvas border border-hairline focus:border-ink focus:bg-white rounded-full px-4 py-2 text-xs sm:text-sm outline-none transition" />
+
+            <button type="submit" class="w-9 h-9 rounded-full bg-accent text-white flex items-center justify-center shrink-0 hover:opacity-95 active:scale-95 transition">
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: CALENDAR ==================== -->
+      <section id="view-calendar" class="app-view hidden space-y-6">
+        <div class="bg-white rounded-3xl border border-hairline p-5 sm:p-7 shadow-2xs">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-ink">Memory Calendar</h2>
+              <p class="text-xs text-subtle mt-0.5">Tap any marked date to revisit that day. Empty days stay peacefully empty.</p>
+            </div>
+            <div class="flex items-center gap-1.5 bg-canvas p-1 rounded-full border border-hairline">
+              <button onclick="shiftCalendarMonth(-1)" class="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span id="cal-month-label" class="px-2.5 text-xs sm:text-sm font-bold min-w-[125px] text-center">November 2026</span>
+              <button onclick="shiftCalendarMonth(1)" class="w-8 h-8 rounded-full hover:bg-white flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Friend Dot Legend -->
+          <div id="cal-legend" class="flex flex-wrap items-center gap-4 text-xs text-subtle mb-4"></div>
+
+          <!-- Weekday Headers -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-bold uppercase tracking-wider text-subtle mb-2">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+
+          <!-- Calendar Days Grid -->
+          <div id="cal-days-grid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
+        </div>
+
+        <!-- Selected Date Entries -->
+        <div id="cal-selected-entries" class="space-y-4"></div>
+      </section>
+
+      <!-- ==================== TAB 4: GALLERY ==================== -->
+      <section id="view-gallery" class="app-view hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-ink">Our Little Gallery</h2>
+            <p class="text-xs text-subtle">Click any photo to read the memory behind it.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="gallery-filter-friend" onchange="renderGallery()"
+              class="bg-white border border-hairline rounded-full px-3.5 py-1.5 text-xs font-semibold outline-none">
+              <option value="all">All Friends</option>
+            </select>
+            <select id="gallery-filter-month" onchange="renderGallery()"
+              class="bg-white border border-hairline rounded-full px-3.5 py-1.5 text-xs font-semibold outline-none">
+              <option value="all">All Months</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3-Column Polaroid Grid -->
+        <div id="gallery-photo-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: SHARED SHELF ==================== -->
+      <section id="view-shelf" class="app-view hidden space-y-6">
+        <div>
+          <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-ink">Shared Shelf</h2>
+          <p class="text-xs text-subtle">Movies, songs & books recommended by our circle.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-hairline p-5 sm:p-6 shadow-2xs space-y-5">
+          <form onsubmit="addShelfItem(event)" class="flex flex-wrap sm:flex-nowrap gap-2">
+            <select id="shelf-input-type" class="bg-canvas border border-hairline rounded-xl px-3 py-2 text-xs font-semibold outline-none">
+              <option value="movie">🎬 Movie</option>
+              <option value="song">🎵 Song</option>
+              <option value="book">📖 Book</option>
+            </select>
+            <input type="text" id="shelf-input-title" required placeholder="Recommend a movie, song, or book..."
+              class="flex-1 bg-canvas border border-hairline focus:border-ink focus:bg-white rounded-xl px-3.5 py-2 text-xs sm:text-sm outline-none transition" />
+            <button type="submit" class="px-4 py-2 rounded-xl bg-accent text-white text-xs font-semibold hover:opacity-95 transition">
+              Add to Shelf
+            </button>
+          </form>
+
+          <div id="shelf-items-list" class="divide-y divide-hairline">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mobile Bottom Tab Bar -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-hairline px-2 py-1.5 flex justify-around items-center">
+      <button data-tab="diary" onclick="switchTab('diary')" class="mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-semibold">
+        <i class="fa-solid fa-book-open text-sm mb-0.5"></i><span>Diary</span>
+      </button>
+      <button data-tab="chat" onclick="switchTab('chat')" class="mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-semibold">
+        <i class="fa-regular fa-comments text-sm mb-0.5"></i><span>Chat</span>
+      </button>
+      <button data-tab="calendar" onclick="switchTab('calendar')" class="mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-semibold">
+        <i class="fa-regular fa-calendar text-sm mb-0.5"></i><span>Calendar</span>
+      </button>
+      <button data-tab="gallery" onclick="switchTab('gallery')" class="mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-semibold">
+        <i class="fa-regular fa-images text-sm mb-0.5"></i><span>Gallery</span>
+      </button>
+      <button data-tab="shelf" onclick="switchTab('shelf')" class="mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-semibold">
+        <i class="fa-solid fa-film text-sm mb-0.5"></i><span>Shelf</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: NEW / EDIT MEMORY COMPOSER                                   -->
+  <!-- ===================================================================== -->
+  <div id="composer-modal" class="fixed inset-0 z-50 hidden bg-black/45 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeModal('composer-modal')">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl border border-hairline space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-hairline pb-3">
+        <div>
+          <h3 class="font-serif text-2xl font-semibold text-ink" id="modal-composer-title">Write a Memory</h3>
+          <p class="text-xs text-subtle" id="modal-composer-date"></p>
+        </div>
+        <button onclick="closeModal('composer-modal')" class="w-8 h-8 rounded-full bg-canvas hover:bg-stone-200/70 flex items-center justify-center text-subtle">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="memory-form" onsubmit="saveMemoryEntry(event)" class="space-y-4">
+        <input type="hidden" id="form-entry-id" value="" />
+
+        <!-- Mood Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-subtle mb-1.5">Today's Mood</label>
+          <div id="form-mood-pills" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- Diary Story -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-subtle">What happened today?</label>
+            <button type="button" onclick="insertDailyPrompt()" class="text-[11px] font-semibold text-accent hover:underline">
+              ✨ Need a prompt?
+            </button>
+          </div>
+          <textarea id="form-text" rows="4" required placeholder="Write about a tiny moment, a laugh, or how today felt..."
+            class="w-full bg-canvas border border-hairline focus:border-ink focus:bg-white rounded-2xl p-3.5 text-sm outline-none transition"></textarea>
+        </div>
+
+        <!-- Photo & Voice Controls -->
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="px-3 py-1.5 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-xs font-semibold text-ink cursor-pointer flex items-center gap-1.5 transition">
+            <i class="fa-regular fa-image text-accent"></i>
+            <span>Add Photos (max 2)</span>
+            <input type="file" accept="image/*" multiple class="hidden" onchange="handleComposerPhotos(event)" />
+          </label>
+
+          <button type="button" onclick="attachSampleSnap()"
+            class="px-3 py-1.5 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-xs font-semibold text-ink flex items-center gap-1 transition">
+            <span>📸</span><span>Sample Snap</span>
+          </button>
+
+          <button type="button" id="form-voice-btn" onclick="toggleComposerVoice()"
+            class="px-3 py-1.5 rounded-full bg-canvas hover:bg-stone-100 border border-hairline text-xs font-semibold text-ink flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-microphone text-accent"></i>
+            <span id="form-voice-label">Voice Note</span>
+          </button>
+        </div>
+
+        <!-- Staged Attachments Preview -->
+        <div id="form-attachments-box" class="hidden flex-wrap items-center gap-2.5 pt-1"></div>
+
+        <!-- Quote & Song/Movie Recommendation -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block text-xs font-semibold text-subtle mb-1">💬 Quote of the Day (Optional)</label>
+            <input type="text" id="form-quote" placeholder="A line worth keeping..."
+              class="w-full bg-canvas border border-hairline focus:border-ink focus:bg-white rounded-xl px-3 py-2 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-subtle mb-1">🎧 Song or Movie Rec</label>
+            <div class="flex gap-1.5">
+              <select id="form-rec-type" class="bg-canvas border border-hairline rounded-xl px-2 py-2 text-xs font-semibold outline-none">
+                <option value="song">🎵</option>
+                <option value="movie">🎬</option>
+              </select>
+              <input type="text" id="form-rec-title" placeholder="Title..."
+                class="flex-1 bg-canvas border border-hairline focus:border-ink focus:bg-white rounded-xl px-3 py-2 text-xs outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-hairline">
+          <button type="button" onclick="closeModal('composer-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-subtle hover:bg-canvas">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-white text-xs sm:text-sm font-semibold shadow-xs hover:opacity-95 transition">
+            Save Memory
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: PHOTO LIGHTBOX & STORY                                       -->
+  <!-- ===================================================================== -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeModal('lightbox-modal')">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-hairline relative" onclick="event.stopPropagation()">
+      <button onclick="closeModal('lightbox-modal')" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-canvas flex items-center justify-center text-subtle hover:text-ink">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="lightbox-body"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 3: RANDOM THROWBACK ("REMEMBER THIS DAY?")                      -->
+  <!-- ===================================================================== -->
+  <div id="throwback-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeModal('throwback-modal')">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-hairline space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-accent">🎞️ Remember This Day?</span>
+        <button onclick="closeModal('throwback-modal')" class="w-8 h-8 rounded-full bg-canvas flex items-center justify-center text-subtle">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="throwback-body"></div>
+      <div class="flex items-center justify-between pt-3 border-t border-hairline">
+        <button onclick="openRandomThrowback()" class="text-xs font-semibold text-accent hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-shuffle"></i> Another memory
+        </button>
+        <button onclick="closeModal('throwback-modal')" class="px-4 py-2 rounded-xl bg-ink text-white text-xs font-semibold">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 4: BIRTHDAY SECRET WISHES                                       -->
+  <!-- ===================================================================== -->
+  <div id="bday-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeModal('bday-modal')">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-hairline space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-2xl font-semibold text-ink" id="bday-modal-heading">Birthday Wishes</h3>
+        <button onclick="closeModal('bday-modal')" class="w-8 h-8 rounded-full bg-canvas flex items-center justify-center text-subtle">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="bday-wishes-container" class="space-y-2 max-h-56 overflow-y-auto"></div>
+      <form onsubmit="submitBirthdayWish(event)" class="flex gap-2 pt-2 border-t border-hairline">
+        <input type="hidden" id="bday-target-friend" />
+        <input type="text" id="bday-wish-input" required placeholder="Add a birthday note or inside joke..."
+          class="flex-1 bg-canvas border border-hairline rounded-xl px-3 py-2 text-xs sm:text-sm outline-none" />
+        <button type="submit" class="px-4 py-2 rounded-xl bg-accent text-white text-xs font-semibold">Add</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 5: DEDICATED SETTINGS (PROFILES, ADD/REMOVE FRIENDS & LOCK)     -->
+  <!-- ===================================================================== -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeModal('settings-modal')">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 shadow-2xl border border-hairline space-y-6" onclick="event.stopPropagation()">
+      
+      <div class="flex items-center justify-between border-b border-hairline pb-3">
+        <div>
+          <h3 class="font-serif text-2xl font-semibold text-ink">Settings & Circle</h3>
+          <p class="text-xs text-subtle">Add or remove friends, customize names, birthdays, colors, and your group lock.</p>
+        </div>
+        <button onclick="closeModal('settings-modal')" class="w-8 h-8 rounded-full bg-canvas hover:bg-stone-200/70 flex items-center justify-center text-subtle">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Birthday Countdowns Strip -->
+      <div class="space-y-2.5">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-subtle">🎂 Birthday Countdowns</h4>
+        <div id="settings-bday-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Friend Profiles Customizer + Add Friend Button -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-subtle">🌷 Our Little Profiles</h4>
+          <button type="button" onclick="addNewFriendToCircle()"
+            class="px-3 py-1 rounded-full bg-accent text-white text-xs font-semibold hover:opacity-95 transition flex items-center gap-1">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>Add Friend</span>
+          </button>
+        </div>
+        <div id="settings-profiles-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Private Group Login Code & Password -->
+      <div class="bg-canvas rounded-2xl border border-hairline p-4 space-y-3">
+        <div>
+          <h4 class="text-sm font-bold text-ink">🔐 Private Group Lock</h4>
+          <p class="text-[11px] text-subtle">Required on the login screen to enter this diary.</p>
+        </div>
+        <form onsubmit="updateGroupCredentials(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
+          <div>
+            <label class="block text-[11px] font-semibold text-subtle mb-1">Invite Code</label>
+            <input type="text" id="settings-group-code" required
+              class="w-full bg-white border border-hairline rounded-xl px-3 py-2 text-xs font-bold uppercase" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-subtle mb-1">Group Password</label>
+            <input type="text" id="settings-group-pass" required
+              class="w-full bg-white border border-hairline rounded-xl px-3 py-2 text-xs font-bold" />
+          </div>
+          <button type="submit" class="py-2 px-4 rounded-xl bg-ink hover:bg-stone-800 text-white text-xs font-semibold transition">
+            Save Code & Pass
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. CLEAN SVG POLAROID ARTWORK GENERATOR
+    // =========================================================================
+    function generatePolaroidArt(type, label) {
+      const palettes = {
+        cafe: { bg: '#F4EDE4', shape: '#D96B4F', emoji: '☕', caption: label || 'corner café afternoon' },
+        sunset: { bg: '#FCECE3', shape: '#E89968', emoji: '🌅', caption: label || 'golden hour walk' },
+        movie: { bg: '#ECEAF6', shape: '#7C6FA0', emoji: '🍿', caption: label || 'late night movie' },
+        park: { bg: '#E6F0EC', shape: '#4F8A75', emoji: '🌿', caption: label || 'sunday park reset' }
+      };
+      const p = palettes[type] || palettes.cafe;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+        <rect width="400" height="300" fill="${p.bg}"/>
+        <circle cx="200" cy="135" r="72" fill="${p.shape}" opacity="0.16"/>
+        <text x="200" y="142" font-size="60" text-anchor="middle" dominant-baseline="middle">${p.emoji}</text>
+        <text x="200" y="232" font-family="sans-serif" font-size="14" font-weight="600" fill="#24201D" opacity="0.65" text-anchor="middle">${p.caption}</text>
+      </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // =========================================================================
+    // 2. DATA STATE & LOCALSTORAGE
+    // =========================================================================
+    const DB_KEY = 'our_little_diary_editorial_v3';
+    const AUTH_SESSION_KEY = 'our_little_diary_unlocked_v3';
+
+    const MOOD_OPTIONS = [
+      { id: 'cozy', emoji: '☕', label: 'Cozy' },
+      { id: 'happy', emoji: '☀️', label: 'Happy' },
+      { id: 'chill', emoji: '🌙', label: 'Chill' },
+      { id: 'nostalgic', emoji: '🎞️', label: 'Nostalgic' },
+      { id: 'silly', emoji: '✨', label: 'Silly' }
+    ];
+
+    const PROMPTS = [
+      "What made you smile unexpectedly today?",
+      "What song has been on repeat for you this week?",
+      "Describe a tiny moment from today you want to remember next year.",
+      "What's the best thing you ate or drank today?"
+    ];
+
+    const CURATED_SWATCHES = [
+      '#D96B4F', '#4F8A75', '#7C6FA0', '#C98A3A',
+      '#4A7C9B', '#B85D78', '#5E7A52', '#3B4252'
+    ];
+
+    const FRIEND_ICONS = ['🌷', '🌿', '🧸', '🌼', '🦋', '🍓', '🌙', '☕', '✨', '🎨'];
+
+    function buildInitialData() {
+      const now = new Date();
+      const iso = (d) => d.toISOString().split('T')[0];
+      const ago = (n) => { const d = new Date(now); d.setDate(d.getDate() - n); return iso(d); };
+      const soon = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14);
+      const upcomingBday = `2001-${String(soon.getMonth() + 1).padStart(2, '0')}-${String(soon.getDate()).padStart(2, '0')}`;
+
+      return {
+        groupCode: 'TRIO-2026',
+        groupPassword: 'sunflower',
+        activeUserId: 'f1',
+        unreadChatCount: 2,
+        friends: [
+          { id: 'f1', name: 'Maya', nickname: 'May', color: '#D96B4F', birthday: upcomingBday, icon: '🌷' },
+          { id: 'f2', name: 'Leo', nickname: 'Lee', color: '#4F8A75', birthday: '2001-04-14', icon: '🌿' },
+          { id: 'f3', name: 'Sam', nickname: 'Sammy', color: '#7C6FA0', birthday: '2001-09-22', icon: '🧸' }
+        ],
+        entries: [
+          {
+            id: 'e1',
+            authorId: 'f1',
+            date: iso(now),
+            timeLabel: 'Today, 4:30 PM',
+            mood: { emoji: '☕', label: 'Cozy' },
+            text: 'Found a quiet window seat at the neighborhood bakery while it drizzled outside. Ordered an iced strawberry matcha and saved the booth idea for our Saturday catch-up.',
+            quote: 'Collect moments, not things.',
+            rec: { type: 'song', title: 'Sunday Morning — Maroon 5 (Acoustic)' },
+            photos: [generatePolaroidArt('cafe', 'iced matcha & rain')],
+            voice: { duration: '0:12', title: 'Bakery rain voice memo' },
+            reactions: ['❤️', '☕'],
+            notes: [{ authorId: 'f2', text: 'Save me a croissant next time!!' }]
+          },
+          {
+            id: 'e2',
+            authorId: 'f2',
+            date: ago(2),
+            timeLabel: '2 days ago',
+            mood: { emoji: '🌙', label: 'Chill' },
+            text: 'Finally watched Past Lives tonight. Completely wrecked me in the best way—added it to our Shared Shelf so we can watch it together next weekend.',
+            quote: 'If you leave something behind, you gain something too.',
+            rec: { type: 'movie', title: 'Past Lives (2023)' },
+            photos: [generatePolaroidArt('movie', 'late night credits')],
+            voice: null,
+            reactions: ['🥹', '🎬'],
+            notes: []
+          },
+          {
+            id: 'e3',
+            authorId: 'f3',
+            date: ago(5),
+            timeLabel: '5 days ago',
+            mood: { emoji: '☀️', label: 'Happy' },
+            text: 'Took croissants and fresh strawberries to the park until sunset. Honestly the best Sunday reset we have had all month.',
+            quote: '',
+            rec: { type: 'song', title: 'Golden Hour — JVKE' },
+            photos: [
+              generatePolaroidArt('park', 'sunday park picnic'),
+              generatePolaroidArt('sunset', 'peach sky at 6pm')
+            ],
+            voice: { duration: '0:08', title: 'Windy park laugh' },
+            reactions: ['🍓', '✨'],
+            notes: []
+          }
+        ],
+        shelf: [
+          { id: 's1', type: 'movie', title: 'Past Lives (2023)', by: 'f2', done: false },
+          { id: 's2', type: 'song', title: 'Sunday Morning — Maroon 5', by: 'f1', done: true },
+          { id: 's3', type: 'book', title: 'Before the Coffee Gets Cold', by: 'f3', done: false }
+        ],
+        chat: [
+          { id: 'c1', senderId: 'f1', text: 'Are we still on for coffee at 4 on Saturday?', time: '10:15 AM', photo: null, voice: null, reactions: ['❤️'] },
+          { id: 'c2', senderId: 'f2', text: 'Yes!! Bringing my film camera so we can take Polaroids.', time: '10:17 AM', photo: null, voice: null, reactions: ['📸'] },
+          { id: 'c3', senderId: 'f3', text: 'Already scouting pastries for us!', time: '10:19 AM', photo: generatePolaroidArt('cafe', 'saturday coffee spot'), voice: null, reactions: ['☕', '✨'] },
+          { id: 'c4', senderId: 'f2', text: '', time: '10:21 AM', photo: null, voice: { duration: '0:09', title: 'Quick voice note' }, reactions: [] }
+        ],
+        wishes: {
+          f1: [{ fromId: 'f2', text: 'Already planning your birthday matcha cake! 🎂' }],
+          f2: [],
+          f3: []
+        }
+      };
+    }
+
+    let db = loadDB();
+
+    function loadDB() {
+      try {
+        const saved = localStorage.getItem(DB_KEY);
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return buildInitialData();
+    }
+
+    function saveDB() {
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (e) {
+        toast('Storage limit reached—try smaller photos.', '⚠️');
+      }
+    }
+
+    function getFriend(id) {
+      return db.friends.find(f => f.id === id) || db.friends[0];
+    }
+
+    // =========================================================================
+    // 3. PRIVATE GROUP LOGIN GATE LOGIC
+    // =========================================================================
+    let selectedLoginFriendId = db.activeUserId || db.friends[0].id;
+
+    function renderLoginScreen() {
+      if (!db.friends.some(f => f.id === selectedLoginFriendId)) {
+        selectedLoginFriendId = db.friends[0].id;
+      }
+      document.getElementById('demo-code-hint').textContent = db.groupCode;
+      document.getElementById('demo-pass-hint').textContent = db.groupPassword;
+
+      const box = document.getElementById('login-friend-selector');
+      box.innerHTML = db.friends.map(f => {
+        const active = f.id === selectedLoginFriendId;
+        return `
+          <button type="button" onclick="selectLoginFriend('${f.id}')"
+            class="py-2.5 px-2 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1 transition ${
+              active
+                ? 'border-ink bg-ink text-white shadow-xs'
+                : 'border-hairline bg-canvas text-ink hover:bg-stone-100'
+            }">
+            <span class="text-base">${f.icon}</span>
+            <span class="truncate max-w-full">${escapeHtml(f.nickname)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectLoginFriend(id) {
+      selectedLoginFriendId = id;
+      renderLoginScreen();
+    }
+
+    function toggleLoginPasswordVisibility() {
+      const inp = document.getElementById('login-password');
+      const icon = document.getElementById('login-eye-icon');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        inp.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function fillDemoCredentials() {
+      document.getElementById('login-code').value = db.groupCode;
+      document.getElementById('login-password').value = db.groupPassword;
+      document.getElementById('login-error').classList.add('hidden');
+    }
+
+    function handleGroupLogin(e) {
+      e.preventDefault();
+      const enteredCode = document.getElementById('login-code').value.trim().toUpperCase();
+      const enteredPass = document.getElementById('login-password').value.trim();
+      const errEl = document.getElementById('login-error');
+
+      if (enteredCode === db.groupCode.toUpperCase() && enteredPass === db.groupPassword) {
+        errEl.classList.add('hidden');
+        db.activeUserId = selectedLoginFriendId;
+        saveDB();
+        sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+        unlockAppUI();
+        const me = getFriend(db.activeUserId);
+        toast(`Welcome back, ${me.nickname}!`, me.icon);
+      } else {
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function unlockAppUI() {
+      if (!db.friends.some(f => f.id === db.activeUserId)) {
+        db.activeUserId = db.friends[0].id;
+      }
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      applyUserAccent();
+      renderHeaderUser();
+      switchTab('diary');
+    }
+
+    function lockDiary() {
+      sessionStorage.removeItem(AUTH_SESSION_KEY);
+      document.getElementById('login-code').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      renderLoginScreen();
+      toast('Diary locked', '🔒');
+    }
+
+    // =========================================================================
+    // 4. THEME, HEADER & NAVIGATION
+    // =========================================================================
+    let currentTab = 'diary';
+    let diaryAuthorFilter = 'all';
+
+    function applyUserAccent() {
+      const me = getFriend(db.activeUserId);
+      document.documentElement.style.setProperty('--accent', me.color);
+      document.documentElement.style.setProperty('--accent-soft', me.color + '18');
+    }
+
+    function switchActiveFriendInHeader(id) {
+      db.activeUserId = id;
+      saveDB();
+      applyUserAccent();
+      renderHeaderUser();
+      switchTab(currentTab);
+      const me = getFriend(id);
+      toast(`Switched to ${me.nickname}`, me.icon);
+    }
+
+    function renderHeaderUser() {
+      document.getElementById('header-friend-switcher').innerHTML = db.friends.map(f => {
+        const active = f.id === db.activeUserId;
+        return `
+          <button onclick="switchActiveFriendInHeader('${f.id}')"
+            class="px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shrink-0 transition ${
+              active ? 'text-white shadow-2xs' : 'text-subtle hover:text-ink'
+            }"
+            style="${active ? `background-color:${f.color}` : ''}">
+            <span>${f.icon}</span>
+            <span class="${active ? 'inline' : 'hidden sm:inline'}">${escapeHtml(f.nickname)}</span>
+          </button>
+        `;
+      }).join('');
+
+      const upcoming = db.friends
+        .map(f => ({ f, days: daysUntilBday(f.birthday) }))
+        .sort((a, b) => a.days - b.days)[0];
+      if (upcoming) {
+        document.getElementById('next-bday-pill').textContent =
+          upcoming.days === 0 ? `🎉 ${upcoming.f.nickname}'s B-Day!` : `🎂 ${upcoming.f.nickname} in ${upcoming.days}d`;
+      }
+
+      const badge = document.getElementById('chat-unread-badge');
+      if (db.unreadChatCount > 0 && currentTab !== 'chat') {
+        badge.textContent = db.unreadChatCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      const todayLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      document.getElementById('today-date-display').textContent = todayLabel;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+      if (tab === 'chat') {
+        db.unreadChatCount = 0;
+        saveDB();
+        renderHeaderUser();
+      }
+
+      document.querySelectorAll('.main-tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.className = active
+          ? 'main-tab py-2.5 border-b-2 border-accent text-ink font-semibold transition flex items-center gap-1.5'
+          : 'main-tab py-2.5 border-b-2 border-transparent text-subtle hover:text-ink font-medium transition flex items-center gap-1.5';
+      });
+
+      document.querySelectorAll('.mob-tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.className = active
+          ? 'mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-bold text-accent'
+          : 'mob-tab flex flex-col items-center p-1.5 rounded-xl text-[11px] font-medium text-subtle';
+      });
+
+      if (tab === 'diary') renderDiaryFeed();
+      if (tab === 'chat') renderChat();
+      if (tab === 'calendar') renderCalendar();
+      if (tab === 'gallery') renderGallery();
+      if (tab === 'shelf') renderShelf();
+    }
+
+    // =========================================================================
+    // 5. DIARY FEED & MODAL COMPOSER
+    // =========================================================================
+    let composerMood = MOOD_OPTIONS[0];
+    let composerPhotos = [];
+    let composerVoice = null;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recStartedAt = 0;
+
+    function renderDiaryFeed() {
+      const bar = document.getElementById('diary-filter-bar');
+      const pills = [
+        { id: 'all', label: 'All Entries' },
+        ...db.friends.map(f => ({ id: f.id, label: `${f.icon} ${f.nickname}` }))
+      ];
+      bar.innerHTML = pills.map(p => {
+        const active = diaryAuthorFilter === p.id;
+        return `
+          <button onclick="setDiaryFilter('${p.id}')"
+            class="px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition ${
+              active
+                ? 'bg-ink text-white'
+                : 'bg-white border border-hairline text-subtle hover:text-ink'
+            }">
+            ${escapeHtml(p.label)}
+          </button>
+        `;
+      }).join('');
+
+      const list = db.entries.filter(e => diaryAuthorFilter === 'all' || e.authorId === diaryAuthorFilter);
+      const container = document.getElementById('diary-feed-list');
+
+      if (!list.length) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-hairline p-10 text-center space-y-2">
+            <p class="font-serif text-2xl text-subtle">No memories here yet.</p>
+            <p class="text-xs text-subtle">Click "+ New Memory" above to write the first page.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(entry => buildEntryCardHTML(entry, true)).join('');
+    }
+
+    function setDiaryFilter(id) {
+      diaryAuthorFilter = id;
+      renderDiaryFeed();
+    }
+
+    function buildEntryCardHTML(entry, interactive = true) {
+      const author = getFriend(entry.authorId);
+      const isMine = entry.authorId === db.activeUserId;
+
+      const photosHTML = (entry.photos && entry.photos.length) ? `
+        <div class="grid ${entry.photos.length > 1 ? 'grid-cols-2' : 'grid-cols-1 max-w-md'} gap-3 pt-2">
+          ${entry.photos.map((src, i) => `
+            <div onclick="openLightbox('${entry.id}', ${i})" class="polaroid-frame cursor-pointer">
+              <img src="${src}" alt="Memory snapshot" class="w-full h-48 sm:h-56 object-cover rounded-lg bg-canvas" />
+              <p class="text-[11px] text-subtle text-center mt-2 font-medium">${entry.date}</p>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+
+      const quoteHTML = entry.quote ? `
+        <blockquote class="pl-3.5 border-l-2 italic text-xs sm:text-sm text-subtle py-0.5" style="border-color:${author.color}">
+          “${escapeHtml(entry.quote)}”
+        </blockquote>
+      ` : '';
+
+      const recHTML = entry.rec ? `
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-canvas border border-hairline text-xs font-medium">
+          <span>${entry.rec.type === 'movie' ? '🎬' : '🎵'}</span>
+          <span class="text-ink">${escapeHtml(entry.rec.title)}</span>
+        </div>
+      ` : '';
+
+      const voiceHTML = entry.voice ? `
+        <div class="flex items-center gap-3 bg-canvas border border-hairline rounded-2xl px-3.5 py-2.5 max-w-xs">
+          <button type="button" onclick="playEntryAudio('${entry.id}', '${entry.voice.url || ''}')"
+            class="w-8 h-8 rounded-full text-white flex items-center justify-center shrink-0 text-xs"
+            style="background-color:${author.color}">
+            <i class="fa-solid fa-play" id="audio-btn-${entry.id}"></i>
+          </button>
+          <div class="flex-1">
+            <div class="flex items-center gap-1 h-3.5" id="audio-wave-${entry.id}">
+              ${[45,80,55,95,60,85,50,75,90,55].map(h => `<span class="w-1 rounded-full bg-stone-400" style="height:${h}%"></span>`).join('')}
+            </div>
+            <p class="text-[11px] text-subtle mt-0.5">${escapeHtml(entry.voice.title)} &bull; ${entry.voice.duration}</p>
+          </div>
+        </div>
+      ` : '';
+
+      const notesHTML = (entry.notes && entry.notes.length) ? `
+        <div class="space-y-1.5 pt-1">
+          ${entry.notes.map(n => {
+            const nf = getFriend(n.authorId);
+            return `<div class="text-xs bg-canvas/80 border border-hairline rounded-xl px-3 py-1.5"><strong style="color:${nf.color}">${escapeHtml(nf.nickname)}:</strong> ${escapeHtml(n.text)}</div>`;
+          }).join('')}
+        </div>
+      ` : '';
+
+      return `
+        <article class="bg-white rounded-3xl border border-hairline p-5 sm:p-7 shadow-2xs space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm text-white font-semibold" style="background-color:${author.color}">
+                ${author.icon}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-ink">${escapeHtml(author.name)}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-canvas text-subtle">${escapeHtml(author.nickname)}</span>
+                </div>
+                <p class="text-xs text-subtle">${entry.timeLabel} &bull; ${entry.date}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="px-2.5 py-1 rounded-full bg-canvas border border-hairline text-xs font-medium">
+                ${entry.mood.emoji} ${entry.mood.label}
+              </span>
+              ${(interactive && isMine) ? `
+                <button onclick="openComposerModal('${entry.id}')" title="Edit" class="w-8 h-8 rounded-full hover:bg-canvas text-subtle hover:text-ink flex items-center justify-center text-xs transition">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="deleteMemoryEntry('${entry.id}')" title="Delete" class="w-8 h-8 rounded-full hover:bg-red-50 text-subtle hover:text-red-600 flex items-center justify-center text-xs transition">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <p class="text-sm sm:text-[15px] leading-relaxed text-ink whitespace-pre-line">${escapeHtml(entry.text)}</p>
+
+          ${photosHTML}
+          ${quoteHTML}
+          <div class="flex flex-wrap items-center gap-2">${recHTML}</div>
+          ${voiceHTML}
+          ${notesHTML}
+
+          ${interactive ? `
+            <div class="pt-3 border-t border-hairline space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  ${['❤️', '🥹', '😂', '✨'].map(r => `
+                    <button onclick="toggleEntryReaction('${entry.id}', '${r}')"
+                      class="w-7 h-7 rounded-full hover:bg-canvas text-xs flex items-center justify-center transition">
+                      ${r}
+                    </button>
+                  `).join('')}
+                </div>
+                <div class="text-xs tracking-wider">${(entry.reactions || []).join(' ')}</div>
+              </div>
+              <form onsubmit="addStickyReply(event, '${entry.id}')" class="flex items-center gap-2">
+                <input type="text" placeholder="Leave a sticky-note reply..."
+                  class="flex-1 bg-canvas/70 border border-hairline focus:border-ink focus:bg-white rounded-full px-3.5 py-1.5 text-xs outline-none transition" />
+                <button type="submit" class="text-xs font-semibold text-accent hover:underline px-1">Post</button>
+              </form>
+            </div>
+          ` : ''}
+        </article>
+      `;
+    }
+
+    function addStickyReply(e, entryId) {
+      e.preventDefault();
+      const inp = e.target.querySelector('input');
+      const text = inp.value.trim();
+      if (!text) return;
+      const entry = db.entries.find(item => item.id === entryId);
+      if (!entry) return;
+      entry.notes = entry.notes || [];
+      entry.notes.push({ authorId: db.activeUserId, text });
+      saveDB();
+      renderDiaryFeed();
+      toast('Sticky note added', '📌');
+    }
+
+    function openComposerModal(editId = '') {
+      const form = document.getElementById('memory-form');
+      form.reset();
+      document.getElementById('form-entry-id').value = editId;
+      composerPhotos = [];
+      composerVoice = null;
+
+      const todayStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      document.getElementById('modal-composer-date').textContent = todayStr;
+
+      if (editId) {
+        const entry = db.entries.find(e => e.id === editId);
+        if (entry) {
+          document.getElementById('modal-composer-title').textContent = 'Edit Memory';
+          document.getElementById('form-text').value = entry.text;
+          document.getElementById('form-quote').value = entry.quote || '';
+          if (entry.rec) {
+            document.getElementById('form-rec-type').value = entry.rec.type;
+            document.getElementById('form-rec-title').value = entry.rec.title;
+          }
+          composerMood = MOOD_OPTIONS.find(m => m.label === entry.mood.label) || MOOD_OPTIONS[0];
+          composerPhotos = [...(entry.photos || [])];
+          composerVoice = entry.voice || null;
+        }
+      } else {
+        document.getElementById('modal-composer-title').textContent = 'Write a Memory';
+        composerMood = MOOD_OPTIONS[0];
+      }
+
+      renderFormMoodPills();
+      renderFormAttachments();
+      document.getElementById('composer-modal').classList.remove('hidden');
+    }
+
+    function renderFormMoodPills() {
+      document.getElementById('form-mood-pills').innerHTML = MOOD_OPTIONS.map(m => {
+        const active = composerMood.id === m.id;
+        return `
+          <button type="button" onclick="selectFormMood('${m.id}')"
+            class="px-2.5 py-1 rounded-full text-xs font-semibold border transition ${
+              active ? 'bg-accent text-white border-accent' : 'bg-canvas border-hairline text-subtle hover:text-ink'
+            }">
+            ${m.emoji} ${m.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectFormMood(id) {
+      composerMood = MOOD_OPTIONS.find(m => m.id === id) || MOOD_OPTIONS[0];
+      renderFormMoodPills();
+    }
+
+    function insertDailyPrompt() {
+      const p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+      const area = document.getElementById('form-text');
+      area.value = area.value ? `${area.value}\n\n${p} ` : `${p} `;
+      area.focus();
+    }
+
+    function handleComposerPhotos(e) {
+      const files = Array.from(e.target.files).slice(0, 2 - composerPhotos.length);
+      if (!files.length) {
+        toast('Maximum 2 photos per memory', '📸');
+        return;
+      }
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          if (composerPhotos.length < 2) {
+            composerPhotos.push(ev.target.result);
+            renderFormAttachments();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = '';
+    }
+
+    function attachSampleSnap() {
+      if (composerPhotos.length >= 2) {
+        toast('Maximum 2 photos attached', '🖼️');
+        return;
+      }
+      const types = ['cafe', 'sunset', 'movie', 'park'];
+      const pick = types[Math.floor(Math.random() * types.length)];
+      composerPhotos.push(generatePolaroidArt(pick, 'little snapshot ✨'));
+      renderFormAttachments();
+    }
+
+    async function toggleComposerVoice() {
+      const btn = document.getElementById('form-voice-btn');
+      const lbl = document.getElementById('form-voice-label');
+
+      if (!isRecording) {
+        isRecording = true;
+        recStartedAt = Date.now();
+        btn.classList.add('border-red-400', 'text-red-600');
+        lbl.textContent = 'Stop Recording';
+
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = ev => audioChunks.push(ev.data);
+            mediaRecorder.onstop = () => {
+              const blob = new Blob(audioChunks, { type: 'audio/webm' });
+              const secs = Math.max(2, Math.round((Date.now() - recStartedAt) / 1000));
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                composerVoice = { duration: `0:${String(secs).padStart(2, '0')}`, title: 'Voice memory', url: reader.result };
+                renderFormAttachments();
+              };
+              reader.readAsDataURL(blob);
+              stream.getTracks().forEach(t => t.stop());
+            };
+            mediaRecorder.start();
+          }
+        } catch (err) {
+          mediaRecorder = null;
+        }
+      } else {
+        isRecording = false;
+        btn.classList.remove('border-red-400', 'text-red-600');
+        lbl.textContent = 'Voice Note';
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        } else {
+          const secs = Math.max(3, Math.round((Date.now() - recStartedAt) / 1000));
+          composerVoice = { duration: `0:${String(secs).padStart(2, '0')}`, title: 'Voice memo', url: null };
+          renderFormAttachments();
+        }
+      }
+    }
+
+    function renderFormAttachments() {
+      const box = document.getElementById('form-attachments-box');
+      if (!composerPhotos.length && !composerVoice) {
+        box.classList.add('hidden');
+        box.classList.remove('flex');
+        return;
+      }
+      box.classList.remove('hidden');
+      box.classList.add('flex');
+
+      let html = composerPhotos.map((src, idx) => `
+        <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-hairline">
+          <img src="${src}" class="w-full h-full object-cover" />
+          <button type="button" onclick="composerPhotos.splice(${idx},1); renderFormAttachments()"
+            class="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/70 text-white text-[9px] flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `).join('');
+
+      if (composerVoice) {
+        html += `
+          <div class="flex items-center gap-2 bg-canvas border border-hairline px-3 py-1.5 rounded-xl text-xs">
+            <i class="fa-solid fa-microphone text-accent"></i>
+            <span>${composerVoice.title} (${composerVoice.duration})</span>
+            <button type="button" onclick="composerVoice=null; renderFormAttachments()" class="text-subtle hover:text-red-600 ml-1">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+      }
+      box.innerHTML = html;
+    }
+
+    function saveMemoryEntry(e) {
+      e.preventDefault();
+      const editId = document.getElementById('form-entry-id').value;
+      const text = document.getElementById('form-text').value.trim();
+      const quote = document.getElementById('form-quote').value.trim();
+      const recType = document.getElementById('form-rec-type').value;
+      const recTitle = document.getElementById('form-rec-title').value.trim();
+      if (!text) return;
+
+      const recObj = recTitle ? { type: recType, title: recTitle } : null;
+
+      if (editId) {
+        const idx = db.entries.findIndex(item => item.id === editId);
+        if (idx !== -1) {
+          db.entries[idx] = {
+            ...db.entries[idx],
+            mood: composerMood,
+            text,
+            quote,
+            rec: recObj,
+            photos: [...composerPhotos],
+            voice: composerVoice
+          };
+        }
+        toast('Memory updated', '✏️');
+      } else {
+        const now = new Date();
+        const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        db.entries.unshift({
+          id: 'e_' + Date.now(),
+          authorId: db.activeUserId,
+          date: now.toISOString().split('T')[0],
+          timeLabel: `Today, ${t}`,
+          mood: composerMood,
+          text,
+          quote,
+          rec: recObj,
+          photos: [...composerPhotos],
+          voice: composerVoice,
+          reactions: ['❤️'],
+          notes: []
+        });
+
+        if (recObj) {
+          db.shelf.unshift({
+            id: 's_' + Date.now(),
+            type: recObj.type,
+            title: recObj.title,
+            by: db.activeUserId,
+            done: false
+          });
+        }
+        toast('Memory saved to diary', '✨');
+      }
+
+      saveDB();
+      closeModal('composer-modal');
+      renderDiaryFeed();
+    }
+
+    function deleteMemoryEntry(id) {
+      db.entries = db.entries.filter(e => e.id !== id);
+      saveDB();
+      renderDiaryFeed();
+      toast('Memory deleted', '🗑️');
+    }
+
+    function toggleEntryReaction(id, emoji) {
+      const entry = db.entries.find(e => e.id === id);
+      if (!entry) return;
+      entry.reactions = entry.reactions || [];
+      entry.reactions.push(emoji);
+      saveDB();
+      renderDiaryFeed();
+    }
+
+    // =========================================================================
+    // 6. MEMORY CALENDAR VIEW
+    // =========================================================================
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+    let selectedCalDate = new Date().toISOString().split('T')[0];
+
+    function shiftCalendarMonth(delta) {
+      calMonth += delta;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      document.getElementById('cal-month-label').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+      document.getElementById('cal-legend').innerHTML = db.friends.map(f => `
+        <span class="inline-flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full" style="background-color:${f.color}"></span>
+          <span>${escapeHtml(f.nickname)}</span>
+        </span>
+      `).join('');
+
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+      const grid = document.getElementById('cal-days-grid');
+
+      let html = '';
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="h-14 rounded-2xl bg-canvas/40"></div>`;
+      }
+
+      for (let d = 1; d <= totalDays; d++) {
+        const iso = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayEntries = db.entries.filter(e => e.date === iso);
+        const isSelected = iso === selectedCalDate;
+
+        const dots = dayEntries.map(e => {
+          const author = getFriend(e.authorId);
+          return `<span class="w-2 h-2 rounded-full" style="background-color:${author.color}"></span>`;
+        }).join('');
+
+        html += `
+          <button type="button" onclick="selectCalendarDate('${iso}')"
+            class="h-14 rounded-2xl border flex flex-col items-center justify-center gap-1 transition ${
+              isSelected
+                ? 'bg-ink text-white border-ink shadow-xs'
+                : dayEntries.length
+                  ? 'bg-white border-hairline hover:border-ink text-ink font-semibold'
+                  : 'bg-canvas/50 border-transparent text-subtle hover:bg-canvas'
+            }">
+            <span class="text-xs">${d}</span>
+            <div class="flex items-center gap-1 h-2">${dots}</div>
+          </button>
+        `;
+      }
+      grid.innerHTML = html;
+      renderCalendarSelectedEntries();
+    }
+
+    function selectCalendarDate(iso) {
+      selectedCalDate = iso;
+      renderCalendar();
+    }
+
+    function renderCalendarSelectedEntries() {
+      const box = document.getElementById('cal-selected-entries');
+      const matches = db.entries.filter(e => e.date === selectedCalDate);
+      if (!matches.length) {
+        box.innerHTML = `
+          <div class="bg-white rounded-3xl border border-hairline p-6 text-center space-y-1">
+            <p class="text-xs font-bold uppercase tracking-wider text-subtle">${selectedCalDate}</p>
+            <p class="font-serif text-lg text-ink">A quiet, unrecorded day.</p>
+            <p class="text-xs text-subtle">No pressure to post daily—empty days stay peaceful.</p>
+          </div>
+        `;
+        return;
+      }
+      box.innerHTML = matches.map(e => buildEntryCardHTML(e, false)).join('');
+    }
+
+    // =========================================================================
+    // 7. OUR LITTLE GALLERY & LIGHTBOX
+    // =========================================================================
+    function renderGallery() {
+      const fSel = document.getElementById('gallery-filter-friend');
+      const mSel = document.getElementById('gallery-filter-month');
+      const curF = fSel.value || 'all';
+      const curM = mSel.value || 'all';
+
+      fSel.innerHTML = `<option value="all">All Friends</option>` +
+        db.friends.map(f => `<option value="${f.id}" ${curF === f.id ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('');
+
+      const months = [...new Set(db.entries.map(e => e.date.slice(0, 7)))].sort().reverse();
+      mSel.innerHTML = `<option value="all">All Months</option>` +
+        months.map(ym => `<option value="${ym}" ${curM === ym ? 'selected' : ''}>${ym}</option>`).join('');
+
+      const fVal = fSel.value;
+      const mVal = mSel.value;
+      const photos = [];
+
+      db.entries.forEach(entry => {
+        if (fVal !== 'all' && entry.authorId !== fVal) return;
+        if (mVal !== 'all' && !entry.date.startsWith(mVal)) return;
+        (entry.photos || []).forEach((src, idx) => {
+          photos.push({ entry, src, idx });
+        });
+      });
+
+      const grid = document.getElementById('gallery-photo-grid');
+      if (!photos.length) {
+        grid.innerHTML = `<div class="col-span-full bg-white rounded-3xl border border-hairline p-10 text-center text-xs text-subtle">No photos found for this filter yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = photos.map(({ entry, src, idx }) => {
+        const author = getFriend(entry.authorId);
+        return `
+          <div onclick="openLightbox('${entry.id}', ${idx})" class="polaroid-frame cursor-pointer">
+            <img src="${src}" class="w-full h-48 object-cover rounded-lg bg-canvas" />
+            <div class="flex items-center justify-between mt-2.5 px-1 text-xs">
+              <span class="font-bold" style="color:${author.color}">${author.icon} ${escapeHtml(author.nickname)}</span>
+              <span class="text-[11px] text-subtle">${entry.date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openLightbox(entryId, photoIdx) {
+      const entry = db.entries.find(e => e.id === entryId);
+      if (!entry) return;
+      const author = getFriend(entry.authorId);
+      const src = entry.photos[photoIdx];
+
+      document.getElementById('lightbox-body').innerHTML = `
+        <div class="space-y-3">
+          <img src="${src}" class="w-full max-h-80 object-cover rounded-2xl bg-canvas" />
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold" style="color:${author.color}">${author.icon} ${escapeHtml(author.name)}</span>
+            <span class="text-subtle">${entry.date} &bull; ${entry.mood.emoji} ${entry.mood.label}</span>
+          </div>
+          <p class="text-sm text-ink leading-relaxed">${escapeHtml(entry.text)}</p>
+        </div>
+      `;
+      document.getElementById('lightbox-modal').classList.remove('hidden');
+    }
+
+    // =========================================================================
+    // 8. DEDICATED GROUP CHAT & SHARED SHELF
+    // =========================================================================
+    let chatStagedPhoto = null;
+    let chatStagedVoice = null;
+    let chatRecording = false;
+    let chatRecorder = null;
+    let chatChunks = [];
+    let chatRecInterval = null;
+    let chatRecSeconds = 0;
+
+    function renderShelf() {
+      const list = document.getElementById('shelf-items-list');
+      list.innerHTML = db.shelf.map(item => {
+        const f = getFriend(item.by);
+        const icon = item.type === 'movie' ? '🎬' : (item.type === 'book' ? '📖' : '🎵');
+        return `
+          <div class="py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-base">${icon}</span>
+              <div>
+                <p class="text-sm font-semibold text-ink ${item.done ? 'line-through text-subtle' : ''}">${escapeHtml(item.title)}</p>
+                <p class="text-[11px] text-subtle">Recommended by <span style="color:${f.color}" class="font-semibold">${escapeHtml(f.nickname)}</span></p>
+              </div>
+            </div>
+            <button onclick="toggleShelfDone('${item.id}')"
+              class="px-3 py-1 rounded-full text-xs font-semibold border transition ${
+                item.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-canvas border-hairline text-subtle hover:text-ink'
+              }">
+              ${item.done ? '✓ Done' : 'Queue'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addShelfItem(e) {
+      e.preventDefault();
+      const type = document.getElementById('shelf-input-type').value;
+      const title = document.getElementById('shelf-input-title').value.trim();
+      if (!title) return;
+      db.shelf.unshift({ id: 's_' + Date.now(), type, title, by: db.activeUserId, done: false });
+      document.getElementById('shelf-input-title').value = '';
+      saveDB();
+      renderShelf();
+      toast('Added to Shared Shelf', '📚');
+    }
+
+    function toggleShelfDone(id) {
+      const item = db.shelf.find(s => s.id === id);
+      if (item) { item.done = !item.done; saveDB(); renderShelf(); }
+    }
+
+    function renderChat() {
+      document.getElementById('chat-members-status').innerHTML = db.friends.map(f => {
+        const isMe = f.id === db.activeUserId;
+        return `
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-hairline text-[11px] font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>${escapeHtml(f.nickname)}${isMe ? ' (You)' : ''}</span>
+          </span>
+        `;
+      }).join('');
+
+      const feed = document.getElementById('chat-feed');
+      feed.innerHTML = db.chat.map(m => {
+        const sender = getFriend(m.senderId);
+        const isMe = m.senderId === db.activeUserId;
+
+        const photoBubble = m.photo ? `
+          <img src="${m.photo}" class="w-52 sm:w-60 h-40 object-cover rounded-xl mb-1.5 bg-white/20" />
+        ` : '';
+
+        const voiceBubble = m.voice ? `
+          <div class="flex items-center gap-2.5 py-1 min-w-[175px]">
+            <button type="button" onclick="playEntryAudio('chat_${m.id}', '${m.voice.url || ''}')"
+              class="w-7 h-7 rounded-full ${isMe ? 'bg-white/25 text-white' : 'text-white'} flex items-center justify-center text-[10px] shrink-0"
+              style="${!isMe ? `background-color:${sender.color}` : ''}">
+              <i class="fa-solid fa-play" id="audio-btn-chat_${m.id}"></i>
+            </button>
+            <div class="flex-1">
+              <div class="flex items-center gap-0.5 h-3" id="audio-wave-chat_${m.id}">
+                ${[40,85,55,95,65,80,45,75].map(h => `<span class="w-1 rounded-full ${isMe ? 'bg-white/80' : 'bg-stone-400'}" style="height:${h}%"></span>`).join('')}
+              </div>
+              <p class="text-[10px] opacity-85 mt-0.5">${escapeHtml(m.voice.title)} &bull; ${m.voice.duration}</p>
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="group flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <div class="flex items-center gap-1.5 mb-1 px-1">
+              ${!isMe ? `<span class="text-xs">${sender.icon}</span>` : ''}
+              <span class="text-[11px] font-semibold text-subtle">${escapeHtml(sender.nickname)} &bull; ${m.time}</span>
+            </div>
+
+            <div class="flex items-end gap-1.5 max-w-[85%] sm:max-w-[75%] ${isMe ? 'flex-row-reverse' : 'flex-row'}">
+              <div class="px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-2xs ${
+                isMe ? 'text-white rounded-br-xs' : 'bg-white border border-hairline text-ink rounded-bl-xs'
+              }" style="${isMe ? `background-color:${sender.color}` : ''}">
+                ${photoBubble}
+                ${voiceBubble}
+                ${m.text ? `<p class="leading-relaxed whitespace-pre-line">${escapeHtml(m.text)}</p>` : ''}
+              </div>
+
+              <div class="opacity-100 sm:opacity-0 group-hover:opacity-100 flex items-center gap-1 transition">
+                <button type="button" onclick="reactToChatMessage('${m.id}', '❤️')" title="Heart"
+                  class="w-6 h-6 rounded-full bg-white border border-hairline hover:bg-canvas text-[10px] flex items-center justify-center">❤️</button>
+                <button type="button" onclick="pinChatToDiary('${m.id}')" title="Pin message into our Diary"
+                  class="w-6 h-6 rounded-full bg-white border border-hairline hover:bg-canvas text-subtle hover:text-accent text-[10px] flex items-center justify-center">
+                  <i class="fa-solid fa-thumbtack"></i>
+                </button>
+              </div>
+            </div>
+
+            ${(m.reactions && m.reactions.length) ? `
+              <div class="mt-1 px-2 py-0.5 rounded-full bg-white border border-hairline text-[10px] shadow-2xs">
+                ${m.reactions.join(' ')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function handleChatPhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        chatStagedPhoto = ev.target.result;
+        updateChatStagedUI();
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    }
+
+    function stageChatSamplePhoto() {
+      const types = ['cafe', 'sunset', 'movie', 'park'];
+      chatStagedPhoto = generatePolaroidArt(types[Math.floor(Math.random() * types.length)], 'chat snapshot');
+      updateChatStagedUI();
+    }
+
+    async function toggleChatVoiceRecording() {
+      const btn = document.getElementById('chat-voice-btn');
+      const timerEl = document.getElementById('chat-voice-timer');
+
+      if (!chatRecording) {
+        chatRecording = true;
+        chatRecSeconds = 0;
+        btn.classList.add('border-red-400', 'text-red-600', 'bg-red-50');
+        timerEl.classList.remove('hidden');
+        timerEl.textContent = '0:00';
+        chatRecInterval = setInterval(() => {
+          chatRecSeconds++;
+          timerEl.textContent = `0:${String(chatRecSeconds).padStart(2, '0')}`;
+        }, 1000);
+
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            chatRecorder = new MediaRecorder(stream);
+            chatChunks = [];
+            chatRecorder.ondataavailable = ev => chatChunks.push(ev.data);
+            chatRecorder.onstop = () => {
+              const blob = new Blob(chatChunks, { type: 'audio/webm' });
+              const dur = `0:${String(Math.max(2, chatRecSeconds)).padStart(2, '0')}`;
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                chatStagedVoice = { duration: dur, title: 'Voice note', url: reader.result };
+                updateChatStagedUI();
+              };
+              reader.readAsDataURL(blob);
+              stream.getTracks().forEach(t => t.stop());
+            };
+            chatRecorder.start();
+          }
+        } catch (err) {
+          chatRecorder = null;
+        }
+      } else {
+        chatRecording = false;
+        clearInterval(chatRecInterval);
+        btn.classList.remove('border-red-400', 'text-red-600', 'bg-red-50');
+        timerEl.classList.add('hidden');
+
+        if (chatRecorder && chatRecorder.state !== 'inactive') {
+          chatRecorder.stop();
+        } else {
+          const dur = `0:${String(Math.max(3, chatRecSeconds)).padStart(2, '0')}`;
+          chatStagedVoice = { duration: dur, title: 'Voice note', url: null };
+          updateChatStagedUI();
+        }
+      }
+    }
+
+    function updateChatStagedUI() {
+      const bar = document.getElementById('chat-staged-bar');
+      const content = document.getElementById('chat-staged-content');
+      if (!chatStagedPhoto && !chatStagedVoice) {
+        bar.classList.add('hidden');
+        return;
+      }
+      bar.classList.remove('hidden');
+      content.innerHTML = `
+        ${chatStagedPhoto ? `<img src="${chatStagedPhoto}" class="w-10 h-10 rounded-lg object-cover border border-hairline" /><span>Photo ready</span>` : ''}
+        ${chatStagedVoice ? `<i class="fa-solid fa-microphone text-accent"></i><span>${chatStagedVoice.title} (${chatStagedVoice.duration})</span>` : ''}
+      `;
+    }
+
+    function clearChatStaged() {
+      chatStagedPhoto = null;
+      chatStagedVoice = null;
+      updateChatStagedUI();
+    }
+
+    function sendChatMessage(e) {
+      e.preventDefault();
+      const inp = document.getElementById('chat-message-input');
+      const text = inp.value.trim();
+      if (!text && !chatStagedPhoto && !chatStagedVoice) return;
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      db.chat.push({
+        id: 'c_' + Date.now(),
+        senderId: db.activeUserId,
+        text,
+        time,
+        photo: chatStagedPhoto,
+        voice: chatStagedVoice,
+        reactions: []
+      });
+      inp.value = '';
+      clearChatStaged();
+      saveDB();
+      renderChat();
+    }
+
+    function reactToChatMessage(id, emoji) {
+      const msg = db.chat.find(m => m.id === id);
+      if (!msg) return;
+      msg.reactions = msg.reactions || [];
+      msg.reactions.push(emoji);
+      saveDB();
+      renderChat();
+    }
+
+    function pinChatToDiary(id) {
+      const msg = db.chat.find(m => m.id === id);
+      if (!msg) return;
+      const now = new Date();
+      db.entries.unshift({
+        id: 'e_' + Date.now(),
+        authorId: msg.senderId,
+        date: now.toISOString().split('T')[0],
+        timeLabel: `Pinned from Chat, ${msg.time}`,
+        mood: { emoji: '💬', label: 'Pinned' },
+        text: msg.text || 'A memorable snapshot from our group chat.',
+        quote: '',
+        rec: null,
+        photos: msg.photo ? [msg.photo] : [],
+        voice: msg.voice || null,
+        reactions: ['📌'],
+        notes: []
+      });
+      saveDB();
+      toast('Pinned message into Our Diary!', '📌');
+    }
+
+    // =========================================================================
+    // 9. SETTINGS MODAL (PROFILES, ADD/REMOVE FRIENDS, BIRTHDAYS & LOCK)
+    // =========================================================================
+    function daysUntilBday(bdayStr) {
+      const now = new Date();
+      const parts = bdayStr.split('-').map(Number);
+      const m = parts.length === 3 ? parts[1] : parts[0];
+      const d = parts.length === 3 ? parts[2] : parts[1];
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let next = new Date(now.getFullYear(), m - 1, d);
+      if (next < today) next = new Date(now.getFullYear() + 1, m - 1, d);
+      return Math.round((next - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function openSettingsModal() {
+      renderSettingsModalContent();
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function renderSettingsModalContent() {
+      // 1. Birthday Countdowns
+      document.getElementById('settings-bday-cards').innerHTML = db.friends.map(f => {
+        const days = daysUntilBday(f.birthday);
+        const count = (db.wishes[f.id] || []).length;
+        return `
+          <div class="bg-canvas rounded-2xl border border-hairline p-3.5 flex flex-col justify-between gap-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-ink truncate">${f.icon} ${escapeHtml(f.name)}</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-hairline text-ink shrink-0">
+                ${days === 0 ? '🎉 Today!' : `${days}d left`}
+              </span>
+            </div>
+            <button onclick="openBirthdayModal('${f.id}')"
+              class="w-full py-1.5 rounded-xl bg-white hover:bg-stone-100 border border-hairline text-[11px] font-semibold text-ink transition">
+              🎁 Wishes (${count})
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // 2. Profiles Editor with Add/Remove Friend support
+      document.getElementById('settings-profiles-grid').innerHTML = db.friends.map(f => {
+        const dateVal = f.birthday.length === 5 ? `2001-${f.birthday}` : f.birthday;
+        return `
+          <div class="bg-canvas rounded-2xl border border-hairline p-3.5 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-full text-white flex items-center justify-center text-xs" style="background-color:${f.color}">${f.icon}</span>
+                <select onchange="updateFriendField('${f.id}','icon',this.value)" class="bg-white border border-hairline rounded-lg px-1.5 py-0.5 text-xs">
+                  ${FRIEND_ICONS.map(ic => `<option value="${ic}" ${f.icon === ic ? 'selected' : ''}>${ic}</option>`).join('')}
+                </select>
+              </div>
+              ${db.friends.length > 1 ? `
+                <button type="button" onclick="removeFriendFromCircle('${f.id}')" title="Remove member"
+                  class="text-[11px] text-red-500 hover:text-red-700 font-semibold px-2 py-0.5 rounded-lg hover:bg-red-50 transition">
+                  Remove
+                </button>
+              ` : ''}
+            </div>
+            <div>
+              <label class="text-[11px] text-subtle font-medium">Name</label>
+              <input type="text" value="${escapeHtml(f.name)}" onchange="updateFriendField('${f.id}','name',this.value)"
+                class="w-full mt-0.5 bg-white border border-hairline rounded-xl px-2.5 py-1.5 font-semibold" />
+            </div>
+            <div>
+              <label class="text-[11px] text-subtle font-medium">Nickname</label>
+              <input type="text" value="${escapeHtml(f.nickname)}" onchange="updateFriendField('${f.id}','nickname',this.value)"
+                class="w-full mt-0.5 bg-white border border-hairline rounded-xl px-2.5 py-1.5 font-semibold" />
+            </div>
+            <div>
+              <label class="text-[11px] text-subtle font-medium">Birthday</label>
+              <input type="date" value="${dateVal}" onchange="updateFriendField('${f.id}','birthday',this.value)"
+                class="w-full mt-0.5 bg-white border border-hairline rounded-xl px-2.5 py-1.5 font-semibold" />
+            </div>
+            <div>
+              <label class="text-[11px] text-subtle font-medium block mb-1">Signature Color</label>
+              <div class="flex flex-wrap gap-1.5">
+                ${CURATED_SWATCHES.map(hex => `
+                  <button type="button" onclick="updateFriendField('${f.id}','color','${hex}')"
+                    class="w-5 h-5 rounded-full transition ${f.color.toLowerCase() === hex.toLowerCase() ? 'ring-2 ring-offset-1 ring-ink scale-110' : 'opacity-80 hover:opacity-100'}"
+                    style="background-color:${hex}"></button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 3. Group Security Settings
+      document.getElementById('settings-group-code').value = db.groupCode;
+      document.getElementById('settings-group-pass').value = db.groupPassword;
+    }
+
+    function addNewFriendToCircle() {
+      const idx = db.friends.length;
+      const newId = 'f_' + Date.now();
+      const color = CURATED_SWATCHES[idx % CURATED_SWATCHES.length];
+      const icon = FRIEND_ICONS[idx % FRIEND_ICONS.length];
+
+      db.friends.push({
+        id: newId,
+        name: 'New Friend',
+        nickname: 'Bestie',
+        color,
+        birthday: '2001-06-15',
+        icon
+      });
+      db.wishes[newId] = [];
+      saveDB();
+      renderHeaderUser();
+      renderSettingsModalContent();
+      switchTab(currentTab);
+      toast('New friend added to the circle!', icon);
+    }
+
+    function removeFriendFromCircle(id) {
+      if (db.friends.length <= 1) return;
+      db.friends = db.friends.filter(f => f.id !== id);
+      if (db.activeUserId === id) {
+        db.activeUserId = db.friends[0].id;
+      }
+      saveDB();
+      applyUserAccent();
+      renderHeaderUser();
+      renderSettingsModalContent();
+      switchTab(currentTab);
+      toast('Friend removed from circle', '👋');
+    }
+
+    function updateFriendField(id, key, val) {
+      const f = getFriend(id);
+      if (!f || !val.trim()) return;
+      f[key] = val.trim();
+      saveDB();
+      applyUserAccent();
+      renderHeaderUser();
+      renderSettingsModalContent();
+      switchTab(currentTab);
+      toast('Profile saved', '✨');
+    }
+
+    function updateGroupCredentials(e) {
+      e.preventDefault();
+      const code = document.getElementById('settings-group-code').value.trim().toUpperCase();
+      const pass = document.getElementById('settings-group-pass').value.trim();
+      if (!code || !pass) return;
+      db.groupCode = code;
+      db.groupPassword = pass;
+      saveDB();
+      toast('Group Invite Code & Password updated!', '🔐');
+    }
+
+    function openBirthdayModal(friendId) {
+      const f = getFriend(friendId);
+      document.getElementById('bday-target-friend').value = friendId;
+      document.getElementById('bday-modal-heading').textContent = `${f.icon} ${f.name}'s Birthday Wishes`;
+      const wishes = db.wishes[friendId] || [];
+      document.getElementById('bday-wishes-container').innerHTML = wishes.length
+        ? wishes.map(w => {
+            const sender = getFriend(w.fromId);
+            return `<div class="bg-canvas border border-hairline rounded-2xl p-3 text-xs"><strong style="color:${sender.color}">${escapeHtml(sender.nickname)}:</strong> ${escapeHtml(w.text)}</div>`;
+          }).join('')
+        : `<p class="text-xs text-subtle text-center py-4">No wishes added yet.</p>`;
+      document.getElementById('bday-modal').classList.remove('hidden');
+    }
+
+    function submitBirthdayWish(e) {
+      e.preventDefault();
+      const targetId = document.getElementById('bday-target-friend').value;
+      const inp = document.getElementById('bday-wish-input');
+      if (!inp.value.trim()) return;
+      db.wishes[targetId] = db.wishes[targetId] || [];
+      db.wishes[targetId].push({ fromId: db.activeUserId, text: inp.value.trim() });
+      inp.value = '';
+      saveDB();
+      openBirthdayModal(targetId);
+      renderSettingsModalContent();
+      toast('Wish saved!', '🎂');
+    }
+
+    // =========================================================================
+    // 10. VOICE PLAYBACK, RANDOM THROWBACK & UTILITIES
+    // =========================================================================
+    let activeAudioEl = null;
+
+    function playEntryAudio(domId, url) {
+      const wave = document.getElementById(`audio-wave-${domId}`);
+      const btn = document.getElementById(`audio-btn-${domId}`);
+
+      if (activeAudioEl) {
+        activeAudioEl.pause();
+        activeAudioEl = null;
+      }
+
+      if (wave) wave.classList.add('wave-active');
+      if (btn) btn.className = 'fa-solid fa-volume-high';
+
+      if (url && url !== 'undefined' && url !== '') {
+        activeAudioEl = new Audio(url);
+        activeAudioEl.play().catch(() => {});
+        activeAudioEl.onended = () => {
+          if (wave) wave.classList.remove('wave-active');
+          if (btn) btn.className = 'fa-solid fa-play';
+        };
+      } else {
+        toast('Playing sample voice note...', '🎙️');
+        setTimeout(() => {
+          if (wave) wave.classList.remove('wave-active');
+          if (btn) btn.className = 'fa-solid fa-play';
+        }, 2500);
+      }
+    }
+
+    function openRandomThrowback() {
+      if (!db.entries.length) {
+        toast('Add a memory first!', '🎞️');
+        return;
+      }
+      const entry = db.entries[Math.floor(Math.random() * db.entries.length)];
+      const author = getFriend(entry.authorId);
+      document.getElementById('throwback-body').innerHTML = `
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-full text-white flex items-center justify-center text-xs" style="background-color:${author.color}">${author.icon}</span>
+            <div>
+              <p class="text-xs font-bold text-ink">${escapeHtml(author.name)}</p>
+              <p class="text-[11px] text-subtle">${entry.date} &bull; ${entry.mood.emoji} ${entry.mood.label}</p>
+            </div>
+          </div>
+          ${entry.photos && entry.photos.length ? `<img src="${entry.photos[0]}" class="w-full h-48 object-cover rounded-2xl bg-canvas" />` : ''}
+          <p class="text-sm text-ink leading-relaxed">${escapeHtml(entry.text)}</p>
+        </div>
+      `;
+      document.getElementById('throwback-modal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function toast(msg, icon = '✨') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      el.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(window._t);
+      window._t = setTimeout(() => el.classList.add('opacity-0', 'translate-y-2'), 2600);
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Boot Application
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem(AUTH_SESSION_KEY) === 'true') {
+        unlockAppUI();
+      } else {
+        renderLoginScreen();
+      }
+    });
+  </script>
+</body>
+</html>
